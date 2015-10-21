@@ -1,12 +1,23 @@
 #include "graph.h"
 
-graph::graph()
+graph::graph(vector<vector<unsigned int>> matrix, int size)
 {
-}
-
-graph::graph(const graph&)
-{
-
+    int i,j;
+    node* temp[size]; //used temporary to construct the graph declared as an array of node pointers
+    cout << "Creating graph from matrix \n";
+    //first we create the nodes:
+    for(i=0;i<size;++i)
+    {
+        temp[i]=new node(i);
+        this->addNode(temp[i]);
+    }
+    for(i=0;i<size;++i)
+        for(j=0;j<size;++j)
+            if(matrix[i][j]>0) //then we have a edge
+                this->connectNode(temp[j],temp[i]);
+    cout << "end of creation of the graph\n";
+    this->first=temp[0];
+    this->unmarkAll();
 }
 void graph::addNode(node *n)
 {
@@ -15,7 +26,7 @@ void graph::addNode(node *n)
 }
 
 void graph::connectNode(node *from,node *to)
-{
+{//can be used later on to use edges defined by a class
     cout << "Connecting " << from->uint_name << "to" << to->uint_name << endl;
     from->addNeighbor(to);
 }
@@ -48,6 +59,29 @@ list<node *> graph::dijkstra(node* startPoint, node* toFind) //as oposed to A* t
     //this->cleanPredecessor TODO
 
 
+}
+/*
+DFS (graphe G, sommet s)
+{
+  Marquer(s);
+  POUR CHAQUE élément s_fils de Voisins(s) FAIRE
+     SI NonMarqué(s_fils) ALORS
+       DFS(G,s_fils);
+     FIN-SI
+  FIN-POUR
+}*/
+
+void graph::dfs(node* n)
+{
+    n->markNode();
+    cout << "DFS : I'm " << n->uint_name << endl;
+        for(node* m:n->edgesList)
+        {
+            if(!m->isMarkedNode())
+            {
+                this->dfs(m);
+            }
+        }
 }
 
 void graph::dijkstraRec(node* startPoint, node* toFind)

@@ -1,16 +1,18 @@
 #include "graph.h"
-
+#include "matrixreader.h"
 using namespace std;
 
 int main()
 {
-    graph *testG = new graph();
-    node *a= new node(1);
-    node *b= new node(2);
-    testG->addNode(a);
-    testG->addNode(b);
-    testG->connectNode(a,b); //from a to b
-    delete testG;
+    MatrixReader *adjMat =new  MatrixReader("mat1.txt");
+
+    graph *oDG= new graph(adjMat->getMatrix(),adjMat->getSize()); //odg for original di-graph
+    delete adjMat;
+
+    oDG->unmarkAll();//to be sure
+    oDG->dfs(oDG->getFirst());
+    oDG->unmarkAll();//to be sure
+    delete oDG;
     return 0;
 }
 

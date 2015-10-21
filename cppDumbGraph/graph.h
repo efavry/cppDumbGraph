@@ -11,15 +11,22 @@ private:
     void detphFirstSearchBegin(node* tofind);
     void detphFirstSearchRec(node* w, list<node*>*open);
     void dijkstraRec(node* startPoint, node* toFind);
-public:
     graph();
     graph(const graph&);
+public:
+    graph(vector<vector<unsigned int>>,int);
+    void dfs(node* n);
     void addNode(node *);
     void connectNode(node *,node *);
     graph constructReverse();
     void unmarkAll();
     list<node *> dijkstra(node* startPoint, node* toFind); //return the ordered path from start node to end node
     list<node *> detphFirstSearch(node* toFind); //return the ordered path from start node to end node
+
+    node* getFirst()
+    {
+        return this->first;
+    }
 
     ~graph();
 }

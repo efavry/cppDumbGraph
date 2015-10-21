@@ -11,5 +11,6 @@ SOURCES += main.cpp \
 HEADERS += \
     graph.h \
     node.h \
-    includecentral.h
+    includecentral.h \
+    matrixreader.h
 
