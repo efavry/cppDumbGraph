@@ -2,11 +2,11 @@
 #define NODE_H
 #include <includecentral.h>
 class node
-{
+{//TODO : CLear inconsistent naming
 private:
     friend class graph;
     unsigned int uint_name;
-    bool mark;
+    bool b_mark;
     list<node*> edgesList;
     //this part of the member is used to store the predecesor and the value of the path
     int int_weightOfPath;

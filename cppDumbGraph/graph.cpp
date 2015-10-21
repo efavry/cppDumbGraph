@@ -8,22 +8,19 @@ graph::graph(const graph&)
 {
 
 }
-void graph::addNode(int value)
+void graph::addNode(node *n)
 {
-    node * n = new node(value);
+    cout << "Adding node \n";
     this->listOfNodes.push_back(n);
 }
 
 void graph::connectNode(node *from,node *to)
 {
+    cout << "Connecting " << from->uint_name << "to" << to->uint_name << endl;
     from->addNeighbor(to);
 }
-/*
-graph graph::constructReverse() //TODO
-{
 
-}
-*/
+
 void graph::unmarkAll()
 {
     for(node* n : this->listOfNodes)
@@ -32,12 +29,59 @@ void graph::unmarkAll()
     }
 }
 
-list<node *> graph::detphFirstSearch(node* tofind)
+
+
+
+list<node *> graph::dijkstra(node* startPoint, node* toFind) //as oposed to A* this algorithm always find with the lowest weight
 {
+    //the fact that our arc are not weighted simplify some things here
+ //first we set all node to a weight of infinity
+    for(node* n : this->listOfNodes)
+        n->int_weightOfPath=INT_MAX;
+    //excepted the startPoint
+    startPoint->int_weightOfPath=0;
+    //we mark the start point;
+    startPoint->markNode();
+    //cleaning the graph from the operatin we've just done
+    this->unmarkAll();
+    //this->cleanWeight TODO
+    //this->cleanPredecessor TODO
+
 
 }
 
-void graph::detphFirstSearchBegin(node* tofind)
+void graph::dijkstraRec(node* startPoint, node* toFind)
+{
+    //we look from the start point all the neigbours and for each of this neigbours we mark the weight we meet but (here the cost will always be one)
+    for(node* y: startPoint->edgesList)
+    {
+        if(!y->isMarkedNode()) //if not marked then we mark, we set the predeccesors and the weight
+        {
+            y->markNode();
+            y->predecessor=startPoint;
+            y->int_weightOfPath=startPoint->int_weightOfPath+1/*weight of arc*/; //because our arc are not weighted, each arc have a weight of one
+        }
+    }
+
+    //then we search the one in the edges list that must be elected
+    for(node* y: startPoint->edgesList)
+    {
+        if(!y->isMarkedNode()) //if not marked then we mark, we set the predeccesors and the weight
+        {
+            y->markNode();
+            y->predecessor=startPoint;
+            y->int_weightOfPath=startPoint->int_weightOfPath+1/*weight of arc*/; //because our arc are not weighted, each arc have a weight of one
+        }
+    }
+}
+
+/*
+list<node *> graph::detphFirstSearch(node* toFind)
+{
+    //TODO
+}
+*/
+void graph::detphFirstSearchBegin(node* toFind)
 {
     list<node *> open; //open = unvisited node
     this->unmarkAll();
@@ -69,7 +113,7 @@ void graph::detphFirstSearchRec(node* w, list<node*>*open)
     open->remove(w);
     for(node* y : w->edgesList)
         if(!y->isMarkedNode())  // for each unmarked neigbor do
-            this->detphFirstSearchRec(y);
+            this->detphFirstSearchRec(y,open);
 }
 
 graph::~graph()
