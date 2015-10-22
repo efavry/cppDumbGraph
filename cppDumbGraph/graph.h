@@ -11,12 +11,15 @@ private:
     void dfsRec(node* n);
     void dijkstraRec(node* startPoint, node* toFind);
     void tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id);
+
+    bool traverse(node *n, list<node *> &l_sorted); //rec fct for the topologicla sort
     graph();
     graph(const graph&);
 public:
     graph(vector<vector<unsigned int>>,int);
     void dfs();
     vector<vector<unsigned int>>  tarjan();
+    void longestPath();
     void addNode(node *);
     void connectNode(node *,node *);
     graph constructReverse();
