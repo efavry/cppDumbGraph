@@ -45,6 +45,7 @@ void graph::unmarkAll()
 
 list<node *> graph::dijkstra(node* startPoint, node* toFind) //as oposed to A* this algorithm always find with the lowest weight
 {
+    //NOT FINISHED
     //the fact that our arc are not weighted simplify some things here
  //first we set all node to a weight of infinity
     for(node* n : this->listOfNodes)
@@ -71,19 +72,77 @@ DFS (graphe G, sommet s)
   FIN-POUR
 }*/
 
-void graph::dfs(node* n)
+void graph::dfs()
 {
-    n->markNode();
-    cout << "DFS : I'm " << n->uint_name << endl;
-        for(node* m:n->edgesList)
-        {
-            if(!m->isMarkedNode())
-            {
-                this->dfs(m);
-            }
-        }
+    this->unmarkAll();
+    //for(node* m:this->listOfNodes)
+      //  this->dfsRec(m);
+    this->dfsRec(this->first);
 }
 
+void graph::dfsRec(node* n)
+{
+    if(!n->isMarkedNode())
+    {
+        n->markNode();
+        cout << "DFS : I'm " << n->uint_name << endl;
+        for(node* m:n->edgesList)
+                this->dfsRec(m);
+    }
+}
+
+void graph::tarjan()
+{
+    int scc_id=0; //will be used to identify in wich strongly cinnected component the node belong
+    this->unmarkAll();
+    int tick =0;
+    stack<node*> st;
+    //this->tarjanRec(this->first,tick,st,scc_id);
+    for(node* p : this->listOfNodes) //we search the node we did not traverse
+        if(p->number<0)
+            this->tarjanRec(p,tick,st,scc_id);
+    //retrivieng the reduced graph
+    for(node* n : this->listOfNodes)
+        cout << "I'm" << n->uint_name << "and i'm in scc :" << n->scc_mark << endl;
+
+}
+void graph::tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id) //to ensure the unicity of the stack and the id we use ref and pointer
+{
+    cout << "Tarjan : I'm " << n->uint_name << endl;
+    n->number=tick; //the "time" of discovery
+    n->numberA=tick; //the lowest time reachable
+    tick++; //each tick refer to the tick of visit
+    st.push(n);
+    n->inStack=true;
+
+    for(node* m:n->edgesList) //for each connected node of n
+    {
+        if(m->number==-1) //if m is not defined
+        {
+            this->tarjanRec(m,tick,st,scc_id);
+            n->numberA = min(n->numberA,m->numberA); //on propage la valeur
+        }
+        else if (m->inStack) //if in the stack then update the value
+        {
+            n->numberA = min(n->numberA, m->number);
+        }
+    }
+    if(n->numberA==n->number) //then n is a root
+    {
+        cout << "Tarjan : n->num = " << n->number <<"et n.numA = "<< n->numberA << endl;
+        node* o;
+        do
+        {
+          o=st.top();
+          st.pop(); //on depile la stack car si numa=num on a trouvé un scc
+          o->inStack=false;
+          o->scc_mark=scc_id;
+        }while(n->uint_name != o->uint_name);
+        scc_id++; //when the scc is retrivied we update for a new scc
+        cout << "Tarjan is scc :" << n->scc_mark << endl;
+    }
+
+}
 void graph::dijkstraRec(node* startPoint, node* toFind)
 {
     //we look from the start point all the neigbours and for each of this neigbours we mark the weight we meet but (here the cost will always be one)
@@ -109,46 +168,8 @@ void graph::dijkstraRec(node* startPoint, node* toFind)
     }
 }
 
-/*
-list<node *> graph::detphFirstSearch(node* toFind)
-{
-    //TODO
-}
-*/
-void graph::detphFirstSearchBegin(node* toFind)
-{
-    list<node *> open; //open = unvisited node
-    this->unmarkAll();
-    node* temp;
-    for(node* n : this->listOfNodes)
-    {
-        open.push_back(n);
-    }
-
-    while(!open.empty()) //if open is not empty : ie of there is unvisited node
-    {
-        temp=open.back();
-        open.pop_back();
-        temp->markNode(); //more easy like this we avoid traversal of list two time
-        for(node* w : temp->edgesList) //for each unmarked neigbor w
-        {
-            open.remove(w);
-            if(!w->isMarkedNode())
-                this->detphFirstSearchRec(w,&open);
-
-        }
-    }
 
 
-}
-void graph::detphFirstSearchRec(node* w, list<node*>*open)
-{
-    w->markNode();
-    open->remove(w);
-    for(node* y : w->edgesList)
-        if(!y->isMarkedNode())  // for each unmarked neigbor do
-            this->detphFirstSearchRec(y,open);
-}
 
 graph::~graph()
 {

@@ -12,6 +12,11 @@ private:
     int int_weightOfPath;
     node* predecessor;
 
+    //used for tarjan
+    int number; //when the node is visited
+    int numberA; //will decrease
+    bool inStack;
+    int scc_mark; //define the scc where he belong
 public:
     node(unsigned int name);
     node (const node&); //copy constructor

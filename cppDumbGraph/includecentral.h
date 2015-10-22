@@ -10,5 +10,6 @@
 #include <istream>
 #include <sstream>
 #include <iterator>
+#include <stack>
 using namespace std;
 #endif // INCLUDECENTRAL_H
