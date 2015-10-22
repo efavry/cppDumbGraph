@@ -16,7 +16,7 @@ private:
 public:
     graph(vector<vector<unsigned int>>,int);
     void dfs();
-    void tarjan();
+    vector<vector<unsigned int>>  tarjan();
     void addNode(node *);
     void connectNode(node *,node *);
     graph constructReverse();

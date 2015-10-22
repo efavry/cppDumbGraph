@@ -61,23 +61,13 @@ list<node *> graph::dijkstra(node* startPoint, node* toFind) //as oposed to A* t
 
 
 }
-/*
-DFS (graphe G, sommet s)
-{
-  Marquer(s);
-  POUR CHAQUE élément s_fils de Voisins(s) FAIRE
-     SI NonMarqué(s_fils) ALORS
-       DFS(G,s_fils);
-     FIN-SI
-  FIN-POUR
-}*/
 
 void graph::dfs()
 {
     this->unmarkAll();
-    //for(node* m:this->listOfNodes)
-      //  this->dfsRec(m);
     this->dfsRec(this->first);
+    for(node* m:this->listOfNodes) //for each unreached node we dfs it (yes the above line is usless
+        this->dfsRec(m);
 }
 
 void graph::dfsRec(node* n)
@@ -91,7 +81,7 @@ void graph::dfsRec(node* n)
     }
 }
 
-void graph::tarjan()
+vector<vector<unsigned int>> graph::tarjan()
 {
     int scc_id=0; //will be used to identify in wich strongly cinnected component the node belong
     this->unmarkAll();
@@ -101,14 +91,54 @@ void graph::tarjan()
     for(node* p : this->listOfNodes) //we search the node we did not traverse
         if(p->number<0)
             this->tarjanRec(p,tick,st,scc_id);
-    //retrivieng the reduced graph
-    for(node* n : this->listOfNodes)
-        cout << "I'm" << n->uint_name << "and i'm in scc :" << n->scc_mark << endl;
 
+    /*Show the set of level*/
+
+
+    /*******retrivieng the reduced graph****************/
+    //will be refactored one day
+    //first we need to count how many scc we have (COSTLY)
+    int scc_max=0,i,j;
+    for(node* n : this->listOfNodes)
+        if(n->scc_mark > scc_max )
+            scc_max=n->scc_mark;
+
+    //now we have the count of scc but beware scc_id begin at 0 and therefore scc_mark also start at 0 so we correct this
+    scc_max++;
+    //we now have the size of the matrix, we can build it
+    vector<vector<unsigned int>> matrix; //array<> is also a solution i think
+    matrix.resize(scc_max);
+    for (i=0; i<scc_max; ++i)
+        matrix[i].resize(scc_max);
+    for (j=0; j<scc_max; ++j)
+        for (i=0; i<scc_max; ++i)
+            matrix[i][j]=0;
+    //now we calculate the new adj matrix
+    for(node* n : this->listOfNodes)
+    {
+        for (node* m : n->edgesList)
+        {
+            if(n->scc_mark!=m->scc_mark)
+                matrix[m->scc_mark][n->scc_mark]++; //matrix[i][j] i is the column so in a adjancecny matrix it's our target while j represent the point of departure
+            //we use ++ because we can have seveeral path between scc (strongly connected componenet)
+        }
+    }
+
+    cout << "Tarjan : reduced matrix is : \n";
+    for (j=0; j<scc_max; ++j)
+    {
+        for (i=0; i<scc_max; ++i)
+        {
+            cout << matrix[i][j];
+            cout << " ";
+        }
+        cout << endl;
+    }
+    return matrix;
 }
+
 void graph::tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id) //to ensure the unicity of the stack and the id we use ref and pointer
 {
-    cout << "Tarjan : I'm " << n->uint_name << endl;
     n->number=tick; //the "time" of discovery
     n->numberA=tick; //the lowest time reachable
     tick++; //each tick refer to the tick of visit
@@ -129,7 +159,6 @@ void graph::tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id) //to ens
     }
     if(n->numberA==n->number) //then n is a root
     {
-        cout << "Tarjan : n->num = " << n->number <<"et n.numA = "<< n->numberA << endl;
         node* o;
         do
         {
@@ -139,10 +168,10 @@ void graph::tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id) //to ens
           o->scc_mark=scc_id;
         }while(n->uint_name != o->uint_name);
         scc_id++; //when the scc is retrivied we update for a new scc
-        cout << "Tarjan is scc :" << n->scc_mark << endl;
     }
 
 }
+
 void graph::dijkstraRec(node* startPoint, node* toFind)
 {
     //we look from the start point all the neigbours and for each of this neigbours we mark the weight we meet but (here the cost will always be one)
@@ -167,9 +196,6 @@ void graph::dijkstraRec(node* startPoint, node* toFind)
         }
     }
 }
-
-
-
 
 graph::~graph()
 {
