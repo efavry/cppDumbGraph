@@ -28,12 +28,12 @@ void node::addNeighbor(node * n)
 {
     this->edgesList.push_back(n);
 }
-
+/*
 void node::addParent(node * n)
 {
     this->parentList.push_back(n);
 }
-
+*/
 node::~node()
 {
 

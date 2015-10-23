@@ -29,7 +29,7 @@ void graph::connectNode(node *from,node *to)
 {//can be used later on to use edges defined by a class
     cout << "Connecting " << from->uint_name << "to" << to->uint_name << endl;
     from->addNeighbor(to);
-    to->addParent(from);
+    //to->addParent(from);
 }
 
 
@@ -112,7 +112,7 @@ vector<vector<unsigned int>> graph::tarjan()
     {
         for (node* m : n->edgesList)
         {
-            //if(n->scc_mark!=m->scc_mark) //remove this for self loop
+            if(n->scc_mark!=m->scc_mark) //remove the self loop
                 matrix[m->scc_mark][n->scc_mark]++; //matrix[i][j] i is the column so in a adjancecny matrix it's our target while j represent the point of departure
             //we use ++ because we can have seveeral path between scc (strongly connected componenet)
         }
