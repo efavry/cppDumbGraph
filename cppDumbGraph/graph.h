@@ -10,9 +10,19 @@ private:
     list<node *> listOfNodes; //will usefull for unmark or things like that
     void dfsRec(node* n);
     void dijkstraRec(node* startPoint, node* toFind);
-    void tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id);
 
-    bool traverse(node *n, list<node *> &l_sorted); //rec fct for the topologicla sort
+    //for tarjan
+    void tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id);
+    void printReducedMatrix(vector<vector<unsigned int>> matrix, int scc_max);
+    vector<vector<unsigned int>> calculateNewAdjacencyMatrix(int scc_max);
+
+    //for longest path
+    bool topologicalSortRec(node *n, list<node *> &l_sorted); //rec fct for the topologicla sort
+    void printTopologicalSort(list<node *> &l_sorted);
+    list<unsigned int> reconstructFromEnd(node*);
+    void printLongestPath(list<unsigned int>, int);
+    int findMaximumDistance(node *end_of_longestpath);
+
     graph();
     graph(const graph&);
 public:

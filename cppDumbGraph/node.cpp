@@ -2,8 +2,8 @@
 node::node(unsigned int name)
 {
     this->uint_name= name;
-    this->number=-1;
-    this->numberA=-1;
+    this->int_number=-1;
+    this->int_numberA=-1;
 }
 
 bool node::isMarkedNode()
@@ -16,17 +16,17 @@ void node::markNode()
 }
 void node::unmarkNode()
 {
-    this->number=-1;
-    this->numberA=-1;
+    this->int_number=-1;
+    this->int_numberA=-1;
     this->b_mark=false;
     this->b_tempMark=false;
-    this->scc_mark=0;
+    this->int_scc_mark=0;
     this->predecessor=NULL;
-    this->dist=0;
+    this->int_dist=0;
 }
 void node::addNeighbor(node * n)
 {
-    this->edgesList.push_back(n);
+    this->l_successors.push_back(n);
 }
 /*
 void node::addParent(node * n)

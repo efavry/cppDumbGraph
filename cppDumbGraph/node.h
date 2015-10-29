@@ -7,23 +7,20 @@ private:
     friend class graph;
     unsigned int uint_name;
     bool b_mark;
-    list<node*> edgesList;
-    //list<node*> parentList; //more easy for the longest path problem to have this
-    //this part of the member is used to store the predecesor and the value of the path
-    //int int_weightOfPath;
+    list<node*> l_successors;
     node* predecessor;
 
     //used for tarjan
-    int number; //when the node is visited
-    int numberA; //will decrease
-    bool inStack;
-    int scc_mark; //define the scc where he belong
+    int int_number; //when the node is visited
+    int int_numberA; //will decrease
+    bool b_inStack;
+    int int_scc_mark; //define the scc where he belong
 
     //for topological sort
     bool b_tempMark;
 
     //for longest path
-    int dist; //(0 by default)
+    int int_dist; //(0 by default)
     node (const node&); //copy constructor
 public:
     node(unsigned int name);

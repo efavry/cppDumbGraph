@@ -21,7 +21,6 @@ graph::graph(vector<vector<unsigned int>> matrix, int size)
 }
 void graph::addNode(node *n)
 {
-    //cout << "Adding node \n";
     this->listOfNodes.push_back(n);
 }
 
@@ -57,7 +56,7 @@ void graph::dfsRec(node* n)
     {
         n->markNode();
         cout << "DFS : I'm " << n->uint_name << endl;
-        for(node* m:n->edgesList)
+        for(node* m:n->l_successors)
                 this->dfsRec(m);
     }
 }
@@ -70,16 +69,16 @@ vector<vector<unsigned int>> graph::tarjan()
     stack<node*> st;
     //this->tarjanRec(this->first,tick,st,scc_id);
     for(node* p : this->listOfNodes) //we search the node we did not traverse
-        if(p->number<0)
+        if(p->int_number<0)
             this->tarjanRec(p,tick,st,scc_id);
 
     /*******retrivieng the reduced graph****************/
     //will be refactored one day
     //first we need to count how many scc we have (COSTLY)
-    int scc_max=0,i,j;
+    int scc_max=0,i;
     for(node* n : this->listOfNodes)
-        if(n->scc_mark > scc_max )
-            scc_max=n->scc_mark;
+        if(n->int_scc_mark  > scc_max )
+            scc_max=n->int_scc_mark ;
 
     //now we have the count of scc but beware scc_id begin at 0 and therefore scc_mark also start at 0 so we correct this
     scc_max++;
@@ -90,7 +89,7 @@ vector<vector<unsigned int>> graph::tarjan()
       cout << "{";
       for(node *toShow : this->listOfNodes)
       {
-          if(toShow->scc_mark == i)
+          if(toShow->int_scc_mark  == i)
           {
             cout << toShow->uint_name;
             if(toShow != this->listOfNodes.back())
@@ -100,6 +99,15 @@ vector<vector<unsigned int>> graph::tarjan()
         cout << "}";
     }
     cout << endl;
+
+    vector<vector<unsigned int>> matrix = this->calculateNewAdjacencyMatrix(scc_max);
+    this->printReducedMatrix(matrix,scc_max);
+    return matrix;
+}
+
+vector<vector<unsigned int>> graph::calculateNewAdjacencyMatrix(int scc_max)
+{
+    int i,j;
     vector<vector<unsigned int>> matrix; //array<> is also a solution i think
     matrix.resize(scc_max);
     for (i=0; i<scc_max; ++i)
@@ -110,14 +118,19 @@ vector<vector<unsigned int>> graph::tarjan()
     //now we calculate the new adj matrix
     for(node* n : this->listOfNodes)
     {
-        for (node* m : n->edgesList)
+        for (node* m : n->l_successors)
         {
-            if(n->scc_mark!=m->scc_mark) //remove the self loop
-                matrix[m->scc_mark][n->scc_mark]++; //matrix[i][j] i is the column so in a adjancecny matrix it's our target while j represent the point of departure
+            if(n->int_scc_mark !=m->int_scc_mark ) //remove the self loop
+                matrix[m->int_scc_mark ][n->int_scc_mark ]++; //matrix[i][j] i is the column so in a adjancecny matrix it's our target while j represent the point of departure
             //we use ++ because we can have seveeral path between scc (strongly connected componenet)
         }
     }
+    return matrix;
+}
 
+void graph::printReducedMatrix(vector<vector<unsigned int>> matrix, int scc_max)
+{
+    int j=0,i=0;
     cout << "Tarjan : reduced matrix is (beware the loop to the self scc is not noted): \n";
     for (j=0; j<scc_max; ++j)
     {
@@ -128,38 +141,36 @@ vector<vector<unsigned int>> graph::tarjan()
         }
         cout << endl;
     }
-    return matrix;
 }
-
 void graph::tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id) //to ensure the unicity of the stack and the id we use ref and pointer
 {
-    n->number=tick; //the "time" of discovery
-    n->numberA=tick; //the lowest time reachable
+    n->int_number=tick; //the "time" of discovery
+    n->int_numberA=tick; //the lowest time reachable
     tick++; //each tick refer to the tick of visit
     st.push(n);
-    n->inStack=true;
+    n->b_inStack=true;
 
-    for(node* m:n->edgesList) //for each connected node of n
+    for(node* m:n->l_successors) //for each connected node of n
     {
-        if(m->number==-1) //if m is not defined
+        if(m->int_number==-1) //if m is not defined
         {
             this->tarjanRec(m,tick,st,scc_id);
-            n->numberA = min(n->numberA,m->numberA); //on propage la valeur
+            n->int_numberA = min(n->int_numberA,m->int_numberA); //on propage la valeur
         }
-        else if (m->inStack) //if in the stack then update the value
+        else if (m->b_inStack) //if in the stack then update the value
         {
-            n->numberA = min(n->numberA, m->number);
+            n->int_numberA = min(n->int_numberA, m->int_number);
         }
     }
-    if(n->numberA==n->number) //then n is a root
+    if(n->int_numberA==n->int_number) //then n is a root
     {
         node* o;
         do
         {
           o=st.top();
           st.pop(); //on depile la stack car si numa=num on a trouvé un scc
-          o->inStack=false;
-          o->scc_mark=scc_id;
+          o->b_inStack=false;
+          o->int_scc_mark =scc_id;
         }while(n->uint_name != o->uint_name);
         scc_id++; //when the scc is retrivied we update for a new scc
     }
@@ -178,7 +189,7 @@ void graph::longestPath() //BEWARE MUST BE DONE ON A ACYCLIC DI-GRAPH
     while(unmarked_node_exist) //ugly incomming !
     {
 
-        if(this->traverse(elected_node,l_sorted)==false)
+        if(this->topologicalSortRec(elected_node,l_sorted)==false)
         {
             cout << "Topological Sort : ERROR : NOT A DAG ! ABORTING \n";
             return;
@@ -191,31 +202,68 @@ void graph::longestPath() //BEWARE MUST BE DONE ON A ACYCLIC DI-GRAPH
                 elected_node=n;
             }
     }
-    //cout << "Topological Sort : End of topological sort \n";
-    cout << "Topological Sort : Sorted list is : ";
-    for(node *m:l_sorted)
-        cout << m->uint_name << ";";
-    cout << "\n";
 
-    for (node *p:l_sorted) //p=v
-        for (node *o:p->edgesList) //o=w
-            if (o->dist <= p->dist +1) //the weight of our edge is always 1 so +1
+    this->printTopologicalSort(l_sorted);
+
+    //for each node p of the sorted list we search wich node is the farthest from p
+    for (node *p:l_sorted)
+        for (node *o:p->l_successors)
+            if (o->int_dist <= p->int_dist +1) //the weight of our edge is always 1 so +1
             {
-                o->dist=p->dist+1;
+                o->int_dist=p->int_dist+1;
                 o->predecessor=p;
             }
 
     //we traverse the graph to find the higest distance
-    //to refactore !
-    node *end_of_longestpath;
+    node *end_of_longestpath=NULL;
+    int max_dist=0;
+    max_dist=this->findMaximumDistance(end_of_longestpath);
+
+    //then from the end_of_longestpath we get each of his predecessors and we show the result while popping the stach (a list here, yes a list...)
+    this->printLongestPath(this->reconstructFromEnd(end_of_longestpath),max_dist);
+    this->unmarkAll();
+}
+
+int graph::findMaximumDistance(node *end_of_longestpath=NULL)
+{
     int max_dist=0;
     for(node *v:this->listOfNodes)
-        if(v->dist>max_dist)
+        if(v->int_dist>max_dist)
         {
-            max_dist=v->dist;
+            max_dist=v->int_dist;
             end_of_longestpath=v;
         }
-    //then from the end_of_longestpath we get each of his predecessors:
+    return max_dist;
+}
+
+//return false if not a dag
+bool graph::topologicalSortRec(node *n, list<node *> &l_sorted)
+{
+    if(n->b_tempMark) //flemme to do accessors
+        return false; //if it is marked temporarly then it was also a n in a upper call of traverse, there fore we hav a cycle
+
+    if(!n->isMarkedNode())
+    {
+        n->b_tempMark=true;
+        for(node *m:n->l_successors)
+            this->topologicalSortRec(m,l_sorted); //for each child of n we call recursivly
+        n->markNode(); //we mark the node n because all operation are finished with him
+        n->b_tempMark=false; //
+        l_sorted.push_front(n); //we add n to the list of sorted node
+    }
+    return true;
+}
+
+void graph::printTopologicalSort(list<node *> &l_sorted)
+{
+    cout << "Topological Sort : Sorted list is : ";
+    for(node *m:l_sorted)
+        cout << m->uint_name << ";";
+    cout << "\n";
+}
+
+list<unsigned int> graph::reconstructFromEnd(node *end_of_longestpath)
+{
     list<unsigned int> path;
     while(end_of_longestpath->predecessor != NULL)
     {
@@ -225,7 +273,11 @@ void graph::longestPath() //BEWARE MUST BE DONE ON A ACYCLIC DI-GRAPH
             if(to_test == end_of_longestpath->uint_name)
                 end_of_longestpath->predecessor=NULL;
     }
-    //then we show the result while popping the stack
+    return path;
+}
+
+void graph::printLongestPath(list<unsigned int> path, int max_dist)
+{
     cout<< "A longest path is found of size "<< max_dist << ": " << endl;
     while(!path.empty())
     {
@@ -233,26 +285,8 @@ void graph::longestPath() //BEWARE MUST BE DONE ON A ACYCLIC DI-GRAPH
         path.pop_back();
     }
     cout<< endl;
-    this->unmarkAll();
 }
 
-//return false if not a dag
-bool graph::traverse(node *n, list<node *> &l_sorted)
-{
-    if(n->b_tempMark) //flemme to do accessors
-        return false; //if it is marked temporarly then it was also a n in a upper call of traverse, there fore we hav a cycle
-
-    if(!n->isMarkedNode())
-    {
-        n->b_tempMark=true;
-        for(node *m:n->edgesList)
-            this->traverse(m,l_sorted); //for each child of n we call recursivly
-        n->markNode(); //we mark the node n because all operation are finished with him
-        n->b_tempMark=false; //
-        l_sorted.push_front(n); //we add n to the list of sorted node
-    }
-    return true;
-}
 graph::~graph()
 {
     while(!this->listOfNodes.empty())

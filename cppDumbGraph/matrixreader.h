@@ -16,7 +16,6 @@ public:
         file.open(filename);
         //first line is size
         file >> temp;
-        //temp >> uint_matrix_size;
         uint_matrix_size = atoi(temp.c_str());
         temp.clear();
         //allocating now the matrix
