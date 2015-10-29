@@ -13,8 +13,10 @@ private:
 
     //for tarjan
     void tarjanRec(node* n, int &tick, stack<node*> &st,int &scc_id);
-    void printReducedMatrix(vector<vector<unsigned int>> matrix, int scc_max);
+    int countNumberOfScc();
+    void printSccContent(int);
     vector<vector<unsigned int>> calculateNewAdjacencyMatrix(int scc_max);
+    void printReducedMatrix(vector<vector<unsigned int>> matrix, int scc_max);
 
     //for longest path
     bool topologicalSortRec(node *n, list<node *> &l_sorted); //rec fct for the topologicla sort
@@ -27,19 +29,16 @@ private:
     graph(const graph&);
 public:
     graph(vector<vector<unsigned int>>,int);
+    void addNode(node *);
+    void connectNode(node *,node *);
     void dfs();
     vector<vector<unsigned int>>  tarjan();
     void longestPath();
-    void addNode(node *);
-    void connectNode(node *,node *);
-    graph constructReverse();
+    //graph constructReverse();
     void unmarkAll();
     list<node *> dijkstra(node* startPoint, node* toFind); //return the ordered path from start node to end node
 
-    node* getFirst()
-    {
-        return this->first;
-    }
+    node* getFirst(){return this->first;}
 
     ~graph();
 }
